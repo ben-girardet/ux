@@ -4,10 +4,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-define(["require", "exports", "aurelia-templating", "aurelia-binding", "aurelia-dependency-injection", "@aurelia-ux/core", "./resources/datetime-utility", "./ux-datepicker-theme", "moment"], function (require, exports, aurelia_templating_1, aurelia_binding_1, aurelia_dependency_injection_1, core_1, datetime_utility_1, ux_datepicker_theme_1, moment) {
+define(["require", "exports", "aurelia-templating", "aurelia-binding", "aurelia-dependency-injection", "@aurelia-ux/core", "./resources/datetime-utility", "moment"], function (require, exports, aurelia_templating_1, aurelia_binding_1, aurelia_dependency_injection_1, core_1, datetime_utility_1, moment) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var theme = new ux_datepicker_theme_1.UxDatepickerTheme();
     var UxDatepicker = /** @class */ (function () {
         function UxDatepicker(element, resources, styleEngine) {
             this.element = element;
@@ -24,9 +23,9 @@ define(["require", "exports", "aurelia-templating", "aurelia-binding", "aurelia-
                 time: ['h:m a', 'H:m']
             };
             this.showDialog = false;
-            styleEngine.ensureDefaultTheme(theme);
         }
         UxDatepicker.prototype.bind = function () {
+            this.processAttribute('placeholder');
             if (this.initialDate != null) {
                 var dateParse = moment(this.initialDate);
                 if (dateParse.isValid()) {
@@ -123,6 +122,13 @@ define(["require", "exports", "aurelia-templating", "aurelia-binding", "aurelia-
                 newValue.themeKey = 'datepicker';
             }
             this.styleEngine.applyTheme(newValue, this.element);
+        };
+        UxDatepicker.prototype.processAttribute = function (attributeName) {
+            var attributeValue = this.element.getAttribute('placeholder');
+            if (attributeValue) {
+                this.element.removeAttribute(attributeName);
+                this.textbox.setAttribute(attributeName, attributeValue);
+            }
         };
         __decorate([
             aurelia_templating_1.bindable

@@ -8,6 +8,7 @@ export declare class UxInput implements UxComponent {
     styleEngine: StyleEngine;
     private ignoreRawChanges;
     autofocus: null;
+    autocomplete: string;
     disabled: any;
     maxlength: number;
     minlength: number;
@@ -15,6 +16,7 @@ export declare class UxInput implements UxComponent {
     max: number;
     readonly: any;
     theme: UxInputTheme;
+    label: any;
     type: any;
     rawValue: string;
     focused: boolean;
@@ -26,9 +28,11 @@ export declare class UxInput implements UxComponent {
     detached(): void;
     getValue(): any;
     setValue(value: any): void;
-    private processRawValue(rawValue);
+    private processRawValue;
+    autocompleteChanged(newValue: any): void;
     themeChanged(newValue: any): void;
     focusedChanged(focused: boolean): void;
     typeChanged(newValue: any): void;
     rawValueChanged(newValue: string): void;
+    focusInput(): void;
 }

@@ -9,9 +9,7 @@ import { bindingMode } from 'aurelia-binding';
 import { inject } from 'aurelia-dependency-injection';
 import { StyleEngine } from '@aurelia-ux/core';
 import { DatetimeUtility } from './resources/datetime-utility';
-import { UxDatepickerTheme } from './ux-datepicker-theme';
 import * as moment from 'moment';
-var theme = new UxDatepickerTheme();
 var UxDatepicker = /** @class */ (function () {
     function UxDatepicker(element, resources, styleEngine) {
         this.element = element;
@@ -28,9 +26,9 @@ var UxDatepicker = /** @class */ (function () {
             time: ['h:m a', 'H:m']
         };
         this.showDialog = false;
-        styleEngine.ensureDefaultTheme(theme);
     }
     UxDatepicker.prototype.bind = function () {
+        this.processAttribute('placeholder');
         if (this.initialDate != null) {
             var dateParse = moment(this.initialDate);
             if (dateParse.isValid()) {
@@ -127,6 +125,13 @@ var UxDatepicker = /** @class */ (function () {
             newValue.themeKey = 'datepicker';
         }
         this.styleEngine.applyTheme(newValue, this.element);
+    };
+    UxDatepicker.prototype.processAttribute = function (attributeName) {
+        var attributeValue = this.element.getAttribute('placeholder');
+        if (attributeValue) {
+            this.element.removeAttribute(attributeName);
+            this.textbox.setAttribute(attributeName, attributeValue);
+        }
     };
     __decorate([
         bindable

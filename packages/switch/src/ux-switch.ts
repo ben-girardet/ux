@@ -20,10 +20,14 @@ export class UxSwitch implements UxComponent {
   @bindable public id: string;
   @bindable public theme: UxSwitchTheme;
 
+  @observable()
   public checked: any;
 
   @observable({ initializer: () => false })
   public value: boolean;
+
+  @observable()
+  public focused: boolean;
 
   private checkbox: HTMLInputElement;
   private ripple: PaperRipple | null = null;
@@ -38,35 +42,33 @@ export class UxSwitch implements UxComponent {
   }
 
   public bind() {
-    const element = this.element;
-    const checkbox = this.checkbox;
-
-    if (element.hasAttribute('id')) {
-      const attributeValue = element.getAttribute('id');
+    if (this.element.hasAttribute('id')) {
+      const attributeValue = this.element.getAttribute('id');
 
       if (attributeValue != null) {
-        checkbox.setAttribute('id', attributeValue);
+        this.checkbox.setAttribute('id', attributeValue);
       }
     }
 
-    if (element.hasAttribute('tabindex')) {
-      const attributeValue = element.getAttribute('tabindex');
+    if (this.element.hasAttribute('tabindex')) {
+      const attributeValue = this.element.getAttribute('tabindex');
 
       if (attributeValue != null) {
-        checkbox.setAttribute('tabindex', attributeValue);
+        this.checkbox.setAttribute('tabindex', attributeValue);
       }
     }
 
-    if (element.hasAttribute('checked')) {
-      const attributeValue = element.getAttribute('checked');
+    if (this.element.hasAttribute('checked')) {
+      const attributeValue = this.element.getAttribute('checked');
 
       if (attributeValue || attributeValue === '') {
-        element.checked = true;
+        this.element.checked = true;
       }
     }
 
+    this.valueChanged(this.value);
+    this.disabledChanged(this.checkbox.disabled);
     this.themeChanged(this.theme);
-    this.disabledChanged(this.disabled);
   }
 
   public attached() {
@@ -94,10 +96,31 @@ export class UxSwitch implements UxComponent {
     }
   }
 
+  public checkedChanged(newValue: any, oldValue: any) {
+    if (newValue === oldValue) {
+      return;
+    }
+
+    if (newValue === true) {
+      this.element.classList.add('ux-switch--checked');
+    } else {
+      this.element.classList.remove('ux-switch--checked');
+    }
+  }
+
+  public focusedChanged(newValue: boolean) {
+    if (newValue === true) {
+      this.element.classList.add('ux-switch--focused');
+    } else {
+      this.element.classList.remove('ux-switch--focused');
+    }
+  }
+
   public valueChanged(newValue: boolean) {
     if (this.ignoreValueChanges) {
       return;
     }
+
     this.setChecked(newValue);
   }
 
@@ -110,10 +133,10 @@ export class UxSwitch implements UxComponent {
   }
 
   public disabledChanged(newValue: boolean | string) {
-    if (normalizeBooleanAttribute('disabled', newValue) && !this.element.classList.contains('disabled')) {
-      this.checkbox.setAttribute('disabled', '');
-    } else if (this.element.classList.contains('disabled')) {
-      this.checkbox.removeAttribute('disabled');
+    if (newValue === true) {
+      this.element.classList.add('ux-switch--disabled');
+    } else {
+      this.element.classList.remove('ux-switch--disabled');
     }
   }
 

@@ -1,4 +1,4 @@
-System.register(["aurelia-templating", "aurelia-binding", "aurelia-dependency-injection", "@aurelia-ux/core", "./ux-switch-theme", "aurelia-framework"], function (exports_1, context_1) {
+System.register(["aurelia-templating", "aurelia-binding", "aurelia-dependency-injection", "@aurelia-ux/core", "aurelia-framework"], function (exports_1, context_1) {
     "use strict";
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -6,11 +6,11 @@ System.register(["aurelia-templating", "aurelia-binding", "aurelia-dependency-in
         else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     };
+    var aurelia_templating_1, aurelia_binding_1, aurelia_dependency_injection_1, core_1, aurelia_framework_1, UxSwitch, getVm, uxSwitchElementProto;
     var __moduleName = context_1 && context_1.id;
     function stopEvent(e) {
         e.stopPropagation();
     }
-    var aurelia_templating_1, aurelia_binding_1, aurelia_dependency_injection_1, core_1, ux_switch_theme_1, aurelia_framework_1, theme, UxSwitch, getVm, uxSwitchElementProto;
     return {
         setters: [
             function (aurelia_templating_1_1) {
@@ -25,15 +25,11 @@ System.register(["aurelia-templating", "aurelia-binding", "aurelia-dependency-in
             function (core_1_1) {
                 core_1 = core_1_1;
             },
-            function (ux_switch_theme_1_1) {
-                ux_switch_theme_1 = ux_switch_theme_1_1;
-            },
             function (aurelia_framework_1_1) {
                 aurelia_framework_1 = aurelia_framework_1_1;
             }
         ],
         execute: function () {
-            theme = new ux_switch_theme_1.UxSwitchTheme();
             UxSwitch = /** @class */ (function () {
                 function UxSwitch(element, styleEngine) {
                     this.element = element;
@@ -42,7 +38,6 @@ System.register(["aurelia-templating", "aurelia-binding", "aurelia-dependency-in
                     this.effect = 'ripple';
                     this.ripple = null;
                     Object.setPrototypeOf(element, uxSwitchElementProto);
-                    styleEngine.ensureDefaultTheme(theme);
                 }
                 Object.defineProperty(UxSwitch.prototype, "isDisabled", {
                     get: function () {
@@ -52,28 +47,27 @@ System.register(["aurelia-templating", "aurelia-binding", "aurelia-dependency-in
                     configurable: true
                 });
                 UxSwitch.prototype.bind = function () {
-                    var element = this.element;
-                    var checkbox = this.checkbox;
-                    if (element.hasAttribute('id')) {
-                        var attributeValue = element.getAttribute('id');
+                    if (this.element.hasAttribute('id')) {
+                        var attributeValue = this.element.getAttribute('id');
                         if (attributeValue != null) {
-                            checkbox.setAttribute('id', attributeValue);
+                            this.checkbox.setAttribute('id', attributeValue);
                         }
                     }
-                    if (element.hasAttribute('tabindex')) {
-                        var attributeValue = element.getAttribute('tabindex');
+                    if (this.element.hasAttribute('tabindex')) {
+                        var attributeValue = this.element.getAttribute('tabindex');
                         if (attributeValue != null) {
-                            checkbox.setAttribute('tabindex', attributeValue);
+                            this.checkbox.setAttribute('tabindex', attributeValue);
                         }
                     }
-                    if (element.hasAttribute('checked')) {
-                        var attributeValue = element.getAttribute('checked');
+                    if (this.element.hasAttribute('checked')) {
+                        var attributeValue = this.element.getAttribute('checked');
                         if (attributeValue || attributeValue === '') {
-                            element.checked = true;
+                            this.element.checked = true;
                         }
                     }
+                    this.valueChanged(this.value);
+                    this.disabledChanged(this.checkbox.disabled);
                     this.themeChanged(this.theme);
-                    this.disabledChanged(this.disabled);
                 };
                 UxSwitch.prototype.attached = function () {
                     this.checkbox.addEventListener('change', stopEvent);
@@ -95,6 +89,25 @@ System.register(["aurelia-templating", "aurelia-binding", "aurelia-dependency-in
                         this.element.dispatchEvent(aurelia_framework_1.DOM.createCustomEvent('change', { bubbles: true }));
                     }
                 };
+                UxSwitch.prototype.checkedChanged = function (newValue, oldValue) {
+                    if (newValue === oldValue) {
+                        return;
+                    }
+                    if (newValue === true) {
+                        this.element.classList.add('ux-switch--checked');
+                    }
+                    else {
+                        this.element.classList.remove('ux-switch--checked');
+                    }
+                };
+                UxSwitch.prototype.focusedChanged = function (newValue) {
+                    if (newValue === true) {
+                        this.element.classList.add('ux-switch--focused');
+                    }
+                    else {
+                        this.element.classList.remove('ux-switch--focused');
+                    }
+                };
                 UxSwitch.prototype.valueChanged = function (newValue) {
                     if (this.ignoreValueChanges) {
                         return;
@@ -108,11 +121,11 @@ System.register(["aurelia-templating", "aurelia-binding", "aurelia-dependency-in
                     this.styleEngine.applyTheme(newValue, this.element);
                 };
                 UxSwitch.prototype.disabledChanged = function (newValue) {
-                    if (core_1.normalizeBooleanAttribute('disabled', newValue) && !this.element.classList.contains('disabled')) {
-                        this.checkbox.setAttribute('disabled', '');
+                    if (newValue === true) {
+                        this.element.classList.add('ux-switch--disabled');
                     }
-                    else if (this.element.classList.contains('disabled')) {
-                        this.checkbox.removeAttribute('disabled');
+                    else {
+                        this.element.classList.remove('ux-switch--disabled');
                     }
                 };
                 UxSwitch.prototype.onMouseDown = function (e) {
@@ -154,8 +167,14 @@ System.register(["aurelia-templating", "aurelia-binding", "aurelia-dependency-in
                     aurelia_templating_1.bindable
                 ], UxSwitch.prototype, "theme", void 0);
                 __decorate([
+                    aurelia_binding_1.observable()
+                ], UxSwitch.prototype, "checked", void 0);
+                __decorate([
                     aurelia_binding_1.observable({ initializer: function () { return false; } })
                 ], UxSwitch.prototype, "value", void 0);
+                __decorate([
+                    aurelia_binding_1.observable()
+                ], UxSwitch.prototype, "focused", void 0);
                 __decorate([
                     aurelia_binding_1.computedFrom('disabled')
                 ], UxSwitch.prototype, "isDisabled", null);

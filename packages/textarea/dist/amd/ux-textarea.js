@@ -4,10 +4,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-define(["require", "exports", "aurelia-templating", "aurelia-pal", "aurelia-dependency-injection", "@aurelia-ux/core", "./ux-textarea-theme", "aurelia-framework"], function (require, exports, aurelia_templating_1, aurelia_pal_1, aurelia_dependency_injection_1, core_1, ux_textarea_theme_1, aurelia_framework_1) {
+define(["require", "exports", "aurelia-templating", "aurelia-pal", "aurelia-dependency-injection", "@aurelia-ux/core", "aurelia-framework"], function (require, exports, aurelia_templating_1, aurelia_pal_1, aurelia_dependency_injection_1, core_1, aurelia_framework_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var theme = new ux_textarea_theme_1.UxTextAreaTheme();
     var UxTextArea = /** @class */ (function () {
         function UxTextArea(element, styleEngine) {
             this.element = element;
@@ -19,14 +18,10 @@ define(["require", "exports", "aurelia-templating", "aurelia-pal", "aurelia-depe
             this.readonly = false;
             this.value = undefined;
             Object.setPrototypeOf(element, uxTextAreaElementProto);
-            styleEngine.ensureDefaultTheme(theme);
         }
         UxTextArea.prototype.bind = function () {
             var element = this.element;
             var textbox = this.textbox;
-            if (this.theme != null) {
-                this.themeChanged(this.theme);
-            }
             if (this.autofocus || this.autofocus === '') {
                 this.focus = true;
             }
@@ -51,6 +46,7 @@ define(["require", "exports", "aurelia-templating", "aurelia-pal", "aurelia-depe
             if (this.maxlength) {
                 textbox.setAttribute('maxlength', this.maxlength.toString());
             }
+            this.autocompleteChanged(this.autocomplete);
         };
         UxTextArea.prototype.attached = function () {
             var textbox = this.textbox;
@@ -82,6 +78,14 @@ define(["require", "exports", "aurelia-templating", "aurelia-pal", "aurelia-depe
                 this.element.dispatchEvent(aurelia_pal_1.DOM.createCustomEvent('change', { bubbles: true }));
             }
         };
+        UxTextArea.prototype.autocompleteChanged = function (newValue) {
+            if (newValue == null) {
+                this.textbox.setAttribute('autocomplete', newValue);
+            }
+            else {
+                this.textbox.removeAttribute('autocomplete');
+            }
+        };
         UxTextArea.prototype.rawValueChanged = function (rawValue) {
             if (this.ignoreRawChanges) {
                 return;
@@ -104,6 +108,9 @@ define(["require", "exports", "aurelia-templating", "aurelia-pal", "aurelia-depe
             focus = focus || focus === '' ? true : false;
             this.element.dispatchEvent(aurelia_pal_1.DOM.createCustomEvent(focus ? 'focus' : 'blur', { bubbles: true }));
         };
+        __decorate([
+            aurelia_templating_1.bindable
+        ], UxTextArea.prototype, "autocomplete", void 0);
         __decorate([
             aurelia_templating_1.bindable
         ], UxTextArea.prototype, "autofocus", void 0);

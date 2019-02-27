@@ -7,9 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { customElement, bindable, computedFrom, DOM, processContent, ElementEvents, inject, PLATFORM, ObserverLocator, TaskQueue, } from 'aurelia-framework';
 import { getLogger } from 'aurelia-logging';
 import { StyleEngine } from '@aurelia-ux/core';
-import { UxSelectTheme } from './ux-select-theme';
 import { getAuViewModel, bool } from './util';
-const theme = new UxSelectTheme();
 const UP = 38;
 // const RIGHT = 39;
 const DOWN = 40;
@@ -32,8 +30,6 @@ class UxSelect {
         this.ignoreSelectEvent = true;
         // Only chrome persist the element prototype when cloning with clone node
         Object.setPrototypeOf(element, UxSelectElementProto);
-        this.theme = theme;
-        styleEngine.ensureDefaultTheme(theme);
     }
     bind() {
         if (bool(this.autofocus)) {
@@ -53,6 +49,9 @@ class UxSelect {
         // Initially Synchronize options with value of this element
         this.taskQueue.queueMicroTask(this);
     }
+    attached() {
+        this.resolveDisplayValue();
+    }
     unbind() {
         this.winEvents.disposeAll();
         if (this.arrayObserver) {
@@ -62,8 +61,18 @@ class UxSelect {
         this.selectedOption = null;
     }
     resolveDisplayValue() {
-        const value = this.value;
-        this.displayValue = Array.isArray(value) ? value.slice().sort().join(', ') : value;
+        const values = this.options
+            .filter(option => Array.isArray(this.value) ?
+            this.value.some(value => value === option.value) :
+            option.value === this.value)
+            .map(t => t.innerText);
+        this.displayValue = values.join(', ');
+        if (this.displayValue.length > 0) {
+            this.element.classList.add('ux-select--has-value');
+        }
+        else {
+            this.element.classList.remove('ux-select--has-value');
+        }
     }
     synchronizeOptions() {
         const value = this.value;
@@ -153,7 +162,7 @@ class UxSelect {
         this.winEvents.disposeAll();
     }
     calcAnchorPosition() {
-        const elDim = this.container.getBoundingClientRect();
+        const elDim = this.element.getBoundingClientRect();
         const offsetY = (48 - elDim.height) / 2;
         this.listAnchor = { x: elDim.left, y: elDim.top - offsetY };
     }
@@ -211,13 +220,13 @@ class UxSelect {
             return;
         }
         this.isExpanding = true;
-        this.optionWrapperEl.classList.add('open');
+        this.optionWrapperEl.classList.add('ux-select__list-wrapper--open');
         setTimeout(() => {
-            this.optionCtEl.classList.add('open');
+            this.optionCtEl.classList.add('ux-select__list-container--open');
             this.isExpanding = false;
             this.expanded = true;
             this.setFocusedOption(this.selectedOption);
-        }, this.theme.listTransition);
+        }, 0);
         this.setupListAnchor();
     }
     collapse() {
@@ -225,14 +234,14 @@ class UxSelect {
             return;
         }
         this.isCollapsing = true;
-        this.optionCtEl.classList.remove('open');
+        this.optionCtEl.classList.remove('ux-select__list-container--open');
         setTimeout(() => {
-            this.optionWrapperEl.classList.remove('open');
+            this.optionWrapperEl.classList.remove('ux-select__list-wrapper--open');
             this.isCollapsing = false;
             this.expanded = false;
             this.setFocusedOption(null);
             this.unsetupListAnchor();
-        }, this.theme.listTransition);
+        }, this.theme && this.theme.listTransition || 125);
     }
     setFocusedOption(focusedOption) {
         const oldFocusedOption = this.focusedUxOption;
@@ -242,7 +251,6 @@ class UxSelect {
             }
             if (focusedOption) {
                 focusedOption.focused = true;
-                focusedOption.wave();
                 focusedOption.scrollIntoView({ block: 'nearest', inline: 'nearest' });
             }
             this.focusedUxOption = focusedOption;
@@ -332,19 +340,21 @@ class UxSelect {
             }
         }
     }
-    onKeyDown(key) {
+    onKeyDown(event) {
         if (this.isDisabled) {
             return;
         }
         // tslint:disable-next-line:switch-default
-        switch (key) {
+        switch (event.which) {
             case UP:
             case DOWN:
-                this.moveSelectedIndex(key === UP ? -1 : 1);
+                this.moveSelectedIndex(event.which === UP ? -1 : 1);
+                event.preventDefault();
                 break;
             case ENTER:
             case SPACE:
                 this.onKeyboardSelect();
+                event.preventDefault();
                 break;
         }
         return true;
@@ -434,7 +444,7 @@ UxSelect = __decorate([
 export { UxSelect };
 function extractUxOption(_, __, node) {
     if (node.hasAttribute('containerless')) {
-        logger.warn('cannot use containerless on <ux-select/>. Consider using as-element instead.');
+        logger.warn('Cannot use containerless on <ux-select/>. Consider using as-element instead.');
         node.removeAttribute('containerless');
     }
     let currentChild = node.firstChild;

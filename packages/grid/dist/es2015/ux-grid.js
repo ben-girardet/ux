@@ -7,18 +7,31 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { customElement, bindable } from 'aurelia-templating';
 import { inject } from 'aurelia-dependency-injection';
 import { StyleEngine } from '@aurelia-ux/core';
-import { UxGridTheme } from './ux-grid-theme';
-const gridTheme = new UxGridTheme();
 let UxGrid = class UxGrid {
     constructor(element, styleEngine) {
         this.element = element;
         this.styleEngine = styleEngine;
-        styleEngine.ensureDefaultTheme(gridTheme);
     }
     bind() {
         this.themeChanged(this.theme);
         if (this.columns != null) {
             this.columnsChanged(this.columns);
+        }
+        this.processAttributes();
+    }
+    processAttributes() {
+        const alignAttributes = [
+            'align-cells-top',
+            'align-cells-middle',
+            'align-cells-bottom',
+            'fixed',
+            'remove-padding'
+        ];
+        for (const attribute of alignAttributes) {
+            if (this.element.hasAttribute(attribute)) {
+                this.element.removeAttribute(attribute);
+                this.element.classList.add(`ux-grid--${attribute}`);
+            }
         }
     }
     themeChanged(newValue) {

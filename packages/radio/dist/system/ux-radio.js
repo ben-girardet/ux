@@ -1,4 +1,4 @@
-System.register(["aurelia-templating", "aurelia-binding", "aurelia-dependency-injection", "@aurelia-ux/core", "./ux-radio-theme", "aurelia-framework"], function (exports_1, context_1) {
+System.register(["aurelia-templating", "aurelia-binding", "aurelia-dependency-injection", "@aurelia-ux/core", "aurelia-framework"], function (exports_1, context_1) {
     "use strict";
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -6,11 +6,11 @@ System.register(["aurelia-templating", "aurelia-binding", "aurelia-dependency-in
         else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     };
+    var aurelia_templating_1, aurelia_binding_1, aurelia_dependency_injection_1, core_1, aurelia_framework_1, UxRadio, getVm, uxRadioElementProto;
     var __moduleName = context_1 && context_1.id;
     function stopEvent(e) {
         e.stopPropagation();
     }
-    var aurelia_templating_1, aurelia_binding_1, aurelia_dependency_injection_1, core_1, ux_radio_theme_1, aurelia_framework_1, theme, UxRadio, getVm, uxRadioElementProto;
     return {
         setters: [
             function (aurelia_templating_1_1) {
@@ -25,15 +25,11 @@ System.register(["aurelia-templating", "aurelia-binding", "aurelia-dependency-in
             function (core_1_1) {
                 core_1 = core_1_1;
             },
-            function (ux_radio_theme_1_1) {
-                ux_radio_theme_1 = ux_radio_theme_1_1;
-            },
             function (aurelia_framework_1_1) {
                 aurelia_framework_1 = aurelia_framework_1_1;
             }
         ],
         execute: function () {
-            theme = new ux_radio_theme_1.UxRadioTheme();
             UxRadio = /** @class */ (function () {
                 function UxRadio(element, styleEngine) {
                     this.element = element;
@@ -43,7 +39,6 @@ System.register(["aurelia-templating", "aurelia-binding", "aurelia-dependency-in
                     this.checked = false;
                     this.ripple = null;
                     Object.setPrototypeOf(element, uxRadioElementProto);
-                    styleEngine.ensureDefaultTheme(theme);
                 }
                 Object.defineProperty(UxRadio.prototype, "isDisabled", {
                     get: function () {
@@ -53,28 +48,35 @@ System.register(["aurelia-templating", "aurelia-binding", "aurelia-dependency-in
                     configurable: true
                 });
                 UxRadio.prototype.bind = function () {
-                    var element = this.element;
-                    var radio = this.radio;
-                    if (element.hasAttribute('id')) {
-                        var id = element.id;
+                    if (this.element.hasAttribute('id')) {
+                        var id = this.element.id;
                         if (id != null) {
-                            radio.setAttribute('id', id);
-                            element.removeAttribute('id');
+                            this.radio.setAttribute('id', id);
+                            this.element.removeAttribute('id');
                         }
                     }
-                    if (element.hasAttribute('tabindex')) {
-                        var tabIndex = element.getAttribute('tabindex');
+                    if (this.element.hasAttribute('tabindex')) {
+                        var tabIndex = this.element.getAttribute('tabindex');
                         if (tabIndex != null) {
-                            radio.setAttribute('tabindex', tabIndex);
-                            element.removeAttribute('tabindex');
+                            this.radio.setAttribute('tabindex', tabIndex);
+                            this.element.removeAttribute('tabindex');
                         }
                     }
-                    if (element.hasAttribute('checked')) {
-                        element.checked = true;
+                    if (this.element.hasAttribute('name')) {
+                        var name_1 = this.element.getAttribute('name');
+                        if (name_1 != null) {
+                            this.radio.setAttribute('name', name_1);
+                            this.element.removeAttribute('name');
+                        }
+                    }
+                    if (this.element.hasAttribute('checked')) {
+                        this.element.checked = true;
                     }
                     if (this.checked) {
-                        radio.checked = true;
+                        this.radio.checked = true;
+                        this.element.classList.add('ux-radio--checked');
                     }
+                    this.disabledChanged(this.radio.disabled);
                     this.themeChanged(this.theme);
                 };
                 UxRadio.prototype.attached = function () {
@@ -95,9 +97,31 @@ System.register(["aurelia-templating", "aurelia-binding", "aurelia-dependency-in
                         this.value = newValue;
                         if (this.radio) {
                             this.radio.checked = !!newValue;
+                            if (this.radio.checked) {
+                                this.element.classList.add('ux-radio--checked');
+                            }
+                            else {
+                                this.element.classList.remove('ux-radio--checked');
+                            }
                         }
                         this.ignoreValueChanges = false;
                         this.element.dispatchEvent(aurelia_framework_1.DOM.createCustomEvent('change', { bubbles: true }));
+                    }
+                };
+                UxRadio.prototype.disabledChanged = function (newValue) {
+                    if (newValue === true) {
+                        this.element.classList.add('ux-radio--disabled');
+                    }
+                    else {
+                        this.element.classList.remove('ux-radio--disabled');
+                    }
+                };
+                UxRadio.prototype.focusedChanged = function (newValue) {
+                    if (newValue === true) {
+                        this.element.classList.add('ux-radio--focused');
+                    }
+                    else {
+                        this.element.classList.remove('ux-radio--focused');
                     }
                 };
                 UxRadio.prototype.themeChanged = function (newValue) {
@@ -153,6 +177,9 @@ System.register(["aurelia-templating", "aurelia-binding", "aurelia-dependency-in
                 __decorate([
                     aurelia_binding_1.observable({ initializer: function () { return false; } })
                 ], UxRadio.prototype, "value", void 0);
+                __decorate([
+                    aurelia_binding_1.observable()
+                ], UxRadio.prototype, "focused", void 0);
                 __decorate([
                     aurelia_binding_1.computedFrom('disabled')
                 ], UxRadio.prototype, "isDisabled", null);

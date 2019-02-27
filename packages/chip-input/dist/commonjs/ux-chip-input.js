@@ -11,8 +11,6 @@ var aurelia_pal_1 = require("aurelia-pal");
 var aurelia_binding_1 = require("aurelia-binding");
 var aurelia_dependency_injection_1 = require("aurelia-dependency-injection");
 var core_1 = require("@aurelia-ux/core");
-var ux_chip_input_theme_1 = require("./ux-chip-input-theme");
-var theme = new ux_chip_input_theme_1.UxChipInputTheme();
 var UxChipInput = /** @class */ (function () {
     function UxChipInput(element, styleEngine) {
         this.element = element;
@@ -22,7 +20,6 @@ var UxChipInput = /** @class */ (function () {
         this.separator = ', ';
         this.value = undefined;
         this.chips = new Array();
-        styleEngine.ensureDefaultTheme(theme);
     }
     UxChipInput.prototype.bind = function () {
         this.themeChanged(this.theme);
@@ -51,11 +48,11 @@ var UxChipInput = /** @class */ (function () {
         var _this = this;
         var blurEvent = aurelia_pal_1.DOM.createCustomEvent('blur', { bubbles: true });
         this.textbox.addEventListener('focus', function () {
-            _this.element.classList.add('focused');
+            _this.element.classList.add('ux-chip-input--focused');
         });
         this.textbox.addEventListener('blur', function () {
             _this.addChip();
-            _this.element.classList.remove('focused');
+            _this.element.classList.remove('ux-chip-input--focused');
             _this.element.dispatchEvent(blurEvent);
         });
     };
@@ -63,11 +60,11 @@ var UxChipInput = /** @class */ (function () {
         var _this = this;
         var blurEvent = aurelia_pal_1.DOM.createCustomEvent('blur', { bubbles: true });
         this.textbox.removeEventListener('focus', function () {
-            _this.element.classList.add('focused');
+            _this.element.classList.add('ux-chip-input--focused');
         });
         this.textbox.removeEventListener('blur', function () {
             _this.addChip();
-            _this.element.classList.remove('focused');
+            _this.element.classList.remove('ux-chip-input--focused');
             _this.element.dispatchEvent(blurEvent);
         });
     };
@@ -164,7 +161,7 @@ var UxChipInput = /** @class */ (function () {
     ], UxChipInput.prototype, "theme", void 0);
     __decorate([
         aurelia_templating_1.bindable
-    ], UxChipInput.prototype, "type", void 0);
+    ], UxChipInput.prototype, "label", void 0);
     __decorate([
         aurelia_templating_1.bindable
     ], UxChipInput.prototype, "separator", void 0);

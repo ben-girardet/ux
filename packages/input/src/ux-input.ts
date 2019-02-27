@@ -15,6 +15,7 @@ export class UxInput implements UxComponent {
   private ignoreRawChanges: boolean;
 
   @bindable public autofocus = null;
+  @bindable public autocomplete: string;
   @bindable public disabled: any = false;
   @bindable public maxlength: number;
   @bindable public minlength: number;
@@ -31,7 +32,7 @@ export class UxInput implements UxComponent {
   @observable
   public focused: boolean = false;
 
-  public value: any = undefined;
+  public value: any;
   public textbox: HTMLInputElement;
 
   constructor(private element: UxInputElement, public styleEngine: StyleEngine) {
@@ -41,6 +42,11 @@ export class UxInput implements UxComponent {
   public bind() {
     const element = this.element;
     const textbox = this.textbox;
+
+    const textboxValue = this.textbox.getAttribute('value');
+    if (textboxValue != null) {
+      this.rawValue = textboxValue;
+    }
 
     if (this.autofocus || this.autofocus === '') {
       this.focused = true;
@@ -100,6 +106,7 @@ export class UxInput implements UxComponent {
       textbox.setAttribute('maxlength', this.maxlength.toString());
     }
 
+    this.autocompleteChanged(this.autocomplete);
     this.themeChanged(this.theme);
   }
 
@@ -146,6 +153,14 @@ export class UxInput implements UxComponent {
       }
     }
     return newValue;
+  }
+
+  public autocompleteChanged(newValue: any) {
+    if (newValue == null) {
+      this.textbox.setAttribute('autocomplete', newValue);
+    } else {
+      this.textbox.removeAttribute('autocomplete');
+    }
   }
 
   public themeChanged(newValue: any) {

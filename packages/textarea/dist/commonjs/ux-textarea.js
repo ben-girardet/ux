@@ -10,9 +10,7 @@ var aurelia_templating_1 = require("aurelia-templating");
 var aurelia_pal_1 = require("aurelia-pal");
 var aurelia_dependency_injection_1 = require("aurelia-dependency-injection");
 var core_1 = require("@aurelia-ux/core");
-var ux_textarea_theme_1 = require("./ux-textarea-theme");
 var aurelia_framework_1 = require("aurelia-framework");
-var theme = new ux_textarea_theme_1.UxTextAreaTheme();
 var UxTextArea = /** @class */ (function () {
     function UxTextArea(element, styleEngine) {
         this.element = element;
@@ -24,14 +22,10 @@ var UxTextArea = /** @class */ (function () {
         this.readonly = false;
         this.value = undefined;
         Object.setPrototypeOf(element, uxTextAreaElementProto);
-        styleEngine.ensureDefaultTheme(theme);
     }
     UxTextArea.prototype.bind = function () {
         var element = this.element;
         var textbox = this.textbox;
-        if (this.theme != null) {
-            this.themeChanged(this.theme);
-        }
         if (this.autofocus || this.autofocus === '') {
             this.focus = true;
         }
@@ -56,6 +50,7 @@ var UxTextArea = /** @class */ (function () {
         if (this.maxlength) {
             textbox.setAttribute('maxlength', this.maxlength.toString());
         }
+        this.autocompleteChanged(this.autocomplete);
     };
     UxTextArea.prototype.attached = function () {
         var textbox = this.textbox;
@@ -87,6 +82,14 @@ var UxTextArea = /** @class */ (function () {
             this.element.dispatchEvent(aurelia_pal_1.DOM.createCustomEvent('change', { bubbles: true }));
         }
     };
+    UxTextArea.prototype.autocompleteChanged = function (newValue) {
+        if (newValue == null) {
+            this.textbox.setAttribute('autocomplete', newValue);
+        }
+        else {
+            this.textbox.removeAttribute('autocomplete');
+        }
+    };
     UxTextArea.prototype.rawValueChanged = function (rawValue) {
         if (this.ignoreRawChanges) {
             return;
@@ -109,6 +112,9 @@ var UxTextArea = /** @class */ (function () {
         focus = focus || focus === '' ? true : false;
         this.element.dispatchEvent(aurelia_pal_1.DOM.createCustomEvent(focus ? 'focus' : 'blur', { bubbles: true }));
     };
+    __decorate([
+        aurelia_templating_1.bindable
+    ], UxTextArea.prototype, "autocomplete", void 0);
     __decorate([
         aurelia_templating_1.bindable
     ], UxTextArea.prototype, "autofocus", void 0);

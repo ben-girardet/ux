@@ -506,10 +506,13 @@ class GlobalStyleEngine {
     constructor() {
         this.logger = getLogger('aurelia-ux');
         this.globalStyles = [];
-        this.styleTag = DOM.createElement('style');
-        this.styleTag.type = 'text/css';
-        this.styleTag.id = 'aurelia-ux-core';
-        DOM.appendNode(this.styleTag, document.head);
+        this.styleTag = DOM.querySelector('#aurelia-ux-core');
+        if (this.styleTag == null) {
+            this.styleTag = DOM.createElement('style');
+            this.styleTag.type = 'text/css';
+            this.styleTag.id = 'aurelia-ux-core';
+            DOM.appendNode(this.styleTag, document.head);
+        }
     }
     addOrUpdateGlobalStyle(id, css, tagGroup) {
         if (id === undefined || css === undefined) {
@@ -627,7 +630,7 @@ let DesignProcessor = class DesignProcessor {
         let designInnerHtml = '';
         for (const key in design) {
             if (design.hasOwnProperty(key)) {
-                designInnerHtml += `  --ux-design--${kebabCase(key)}: ${design[key]};\r\n`;
+                designInnerHtml += `  --aurelia-ux--design-${kebabCase(key)}: ${design[key]};\r\n`;
             }
         }
         return designInnerHtml;
@@ -683,11 +686,12 @@ let AureliaUX = class AureliaUX {
         const adapters = this.adapters;
         let elementAdapters = adapters[tagName] || adapters[tagName.toLowerCase()];
         if (!elementAdapters) {
-            elementAdapters = adapters[tagName] = adapters[tagName.toLowerCase()] = { tagName: tagName, properties: {} };
+            elementAdapters = adapters[tagName] = adapters[tagName.toLowerCase()] = { tagName, properties: {} };
         }
         return elementAdapters;
     }
     interceptDetermineDefaultBindingMode() {
+        // tslint:disable-next-line
         const ux = this;
         const originalFn = SyntaxInterpreter.prototype.determineDefaultBindingMode;
         SyntaxInterpreter.prototype.determineDefaultBindingMode = function (element, attrName, context) {
@@ -1266,15 +1270,9 @@ class PaperRipple {
  */
 function normalizeBooleanAttribute(attributeName, value) {
     let ret;
+    // tslint:disable-next-line
     if (typeof value === 'string') {
-        if (value === '' || value.toLocaleLowerCase() === attributeName.toLocaleLowerCase()) {
-            // if string, then it can be true if the value is blank,
-            // or the value matches the name of the attribue with case insensitivity
-            ret = true;
-        }
-        else {
-            ret = false;
-        }
+        ret = value === '' || value.toLocaleLowerCase() === attributeName.toLocaleLowerCase();
     }
     else {
         ret = value;
@@ -1283,48 +1281,39 @@ function normalizeBooleanAttribute(attributeName, value) {
 }
 
 let StyleController = class StyleController {
-    constructor(observerLocator, globalStyleEngine) {
+    constructor(observerLocator, globalStyleEngine, ux) {
         this.observerLocator = observerLocator;
         this.globalStyleEngine = globalStyleEngine;
+        this.ux = ux;
         this.themes = [];
-    }
-    /**
-     * Checks to see if a base theme has been registered.
-     * If no base theme is found, the theme is registered,
-     * bindings are set up, and a new style element is added
-     * with the processed theme to the document head.
-     *
-     * @param theme A theme derived from the UxTheme base class.
-     */
-    ensureBaseThemeCreated(theme) {
-        let baseTheme = this.themes[theme.themeKey];
-        if (baseTheme != null) {
-            return;
-        }
-        baseTheme = theme;
-        this.globalStyleEngine.addOrUpdateGlobalStyle(`aurelia-ux theme ${theme.themeKey}`, this.processInnerHtml(theme), ':root');
-        this.setWatches(theme);
-        this.themes[theme.themeKey] = theme;
     }
     updateTheme(theme, element) {
         const baseTheme = { themeKey: 'base-theme' };
-        let defaultTheme = this.themes[theme.themeKey];
-        if (defaultTheme == null) {
-            this.ensureBaseThemeCreated(theme);
+        if (theme.themeKey == null) {
+            throw new Error('Provided theme has no themeKey property.');
         }
-        defaultTheme = this.themes[theme.themeKey];
-        if (defaultTheme == null) {
-            return;
-        }
-        for (const key in theme) {
-            if (element == null) {
-                if (theme.hasOwnProperty(key) && baseTheme.hasOwnProperty(key) === false) {
-                    defaultTheme[key] = theme[key];
+        if (theme.themeKey === 'design') {
+            for (const key in theme) {
+                if (key !== 'themeKey') {
+                    this.ux.design[key] = theme[key];
                 }
             }
-            else {
-                element.style.setProperty(this.generateCssVariableName(theme.themeKey, key), theme[key]);
+        }
+        else if (element != null) {
+            for (const key in theme) {
+                if (theme.hasOwnProperty(key) && baseTheme.hasOwnProperty(key) === false) {
+                    element.style.setProperty(this.generateCssVariableName(theme.themeKey, key), theme[key]);
+                }
             }
+        }
+        else {
+            const uxTheme = this.themes.splice(this.themes.indexOf(this.themes[theme.themeKey]))[0];
+            if (uxTheme != null) {
+                this.removeWatches(uxTheme);
+            }
+            this.globalStyleEngine.addOrUpdateGlobalStyle(`aurelia-ux theme ${theme.themeKey}`, this.processInnerHtml(theme), ':root');
+            this.setWatches(theme);
+            this.themes[theme.themeKey] = theme;
         }
     }
     getThemeKeys(theme) {
@@ -1338,17 +1327,23 @@ let StyleController = class StyleController {
         return themeKeys;
     }
     generateCssVariableName(themeKey, propertyKey) {
-        return `--ux-theme--${themeKey}-${kebabCase$1(propertyKey)}`;
+        return `--aurelia-ux--${themeKey}-${kebabCase$1(propertyKey)}`;
     }
     generateCssVariable(themeKey, propertyKey, value) {
-        return `--ux-theme--${themeKey}-${kebabCase$1(propertyKey)}: ${value};`;
+        return `--aurelia-ux--${themeKey}-${kebabCase$1(propertyKey)}: ${value};`;
     }
     setWatches(theme) {
         for (const key of this.getThemeKeys(theme)) {
-            this.observerLocator.getObserver(theme, key).subscribe(() => {
-                this.globalStyleEngine.addOrUpdateGlobalStyle(`aurelia-ux theme ${theme.themeKey}`, this.processInnerHtml(theme), ':root');
-            });
+            this.observerLocator.getObserver(theme, key).subscribe(() => this.themePropertyChanged(theme));
         }
+    }
+    removeWatches(theme) {
+        for (const key of this.getThemeKeys(theme)) {
+            this.observerLocator.getObserver(theme, key).unsubscribe(() => this.themePropertyChanged(theme));
+        }
+    }
+    themePropertyChanged(theme) {
+        this.globalStyleEngine.addOrUpdateGlobalStyle(`aurelia-ux theme ${theme.themeKey}`, this.processInnerHtml(theme), ':root');
     }
     processInnerHtml(theme) {
         let designInnerHtml = '';
@@ -1359,7 +1354,7 @@ let StyleController = class StyleController {
     }
 };
 StyleController = __decorate([
-    inject(ObserverLocator, GlobalStyleEngine)
+    inject(ObserverLocator, GlobalStyleEngine, AureliaUX)
 ], StyleController);
 function kebabCase$1(value) {
     value = value.charAt(0).toLowerCase() + value.slice(1);
@@ -1380,15 +1375,10 @@ let StyleEngine = class StyleEngine {
      * @param theme UxTheme to process.
      */
     applyTheme(theme, element) {
-        if (theme == null) {
+        if (theme == null || theme.themeKey == null) {
             return;
         }
-        if (element != null) {
-            this.styleController.updateTheme(theme, element);
-        }
-        else {
-            this.styleController.updateTheme(theme);
-        }
+        this.styleController.updateTheme(theme, element);
     }
     /**
      * Applies an array of themes. This is to enable the creation of
@@ -1400,17 +1390,6 @@ let StyleEngine = class StyleEngine {
         for (const theme of themes) {
             this.applyTheme(theme);
         }
-    }
-    /**
-     * Checks to see if a base theme has been registered.
-     * If no base theme is found, the theme is registered,
-     * bindings are set up, and a new style element is added
-     * with the processed theme to the document head.
-     *
-     * @param theme A theme derived from the UxTheme base class.
-     */
-    ensureDefaultTheme(theme) {
-        this.styleController.ensureBaseThemeCreated(theme);
     }
     /**
      * Retrieves the default theme object for the provided key that can then be updated.

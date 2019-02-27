@@ -9,8 +9,6 @@ import { DOM } from 'aurelia-pal';
 import { observable } from 'aurelia-binding';
 import { inject } from 'aurelia-dependency-injection';
 import { StyleEngine } from '@aurelia-ux/core';
-import { UxInputTheme } from './ux-input-theme';
-const theme = new UxInputTheme();
 let UxInput = class UxInput {
     constructor(element, styleEngine) {
         this.element = element;
@@ -20,21 +18,29 @@ let UxInput = class UxInput {
         this.readonly = false;
         this.rawValue = '';
         this.focused = false;
-        this.value = undefined;
         Object.setPrototypeOf(element, uxInputElementProto);
-        styleEngine.ensureDefaultTheme(theme);
     }
     bind() {
         const element = this.element;
         const textbox = this.textbox;
+        const textboxValue = this.textbox.getAttribute('value');
+        if (textboxValue != null) {
+            this.rawValue = textboxValue;
+        }
         if (this.autofocus || this.autofocus === '') {
             this.focused = true;
+        }
+        if (element.hasAttribute('id')) {
+            const attributeValue = element.getAttribute('id');
+            if (attributeValue) {
+                element.removeAttribute('id');
+                textbox.setAttribute('id', attributeValue);
+            }
         }
         if (element.hasAttribute('placeholder')) {
             const attributeValue = element.getAttribute('placeholder');
             if (attributeValue) {
-                textbox.setAttribute('placeholder', attributeValue);
-                element.removeAttribute('placeholder');
+                this.label = attributeValue;
             }
         }
         if (element.hasAttribute('step')) {
@@ -67,6 +73,7 @@ let UxInput = class UxInput {
         if (this.maxlength) {
             textbox.setAttribute('maxlength', this.maxlength.toString());
         }
+        this.autocompleteChanged(this.autocomplete);
         this.themeChanged(this.theme);
     }
     attached() {
@@ -109,6 +116,14 @@ let UxInput = class UxInput {
         }
         return newValue;
     }
+    autocompleteChanged(newValue) {
+        if (newValue == null) {
+            this.textbox.setAttribute('autocomplete', newValue);
+        }
+        else {
+            this.textbox.removeAttribute('autocomplete');
+        }
+    }
     themeChanged(newValue) {
         if (newValue != null && newValue.themeKey == null) {
             newValue.themeKey = 'input';
@@ -116,6 +131,12 @@ let UxInput = class UxInput {
         this.styleEngine.applyTheme(newValue, this.element);
     }
     focusedChanged(focused) {
+        if (focused === true) {
+            this.element.classList.add('ux-input--focused');
+        }
+        else {
+            this.element.classList.remove('ux-input--focused');
+        }
         this.element.dispatchEvent(DOM.createCustomEvent(focused ? 'focus' : 'blur', { bubbles: false }));
     }
     typeChanged(newValue) {
@@ -124,15 +145,27 @@ let UxInput = class UxInput {
         }
     }
     rawValueChanged(newValue) {
+        if (newValue.length > 0) {
+            this.element.classList.add('ux-input--has-value');
+        }
+        else {
+            this.element.classList.remove('ux-input--has-value');
+        }
         if (this.ignoreRawChanges) {
             return;
         }
         this.setValue(newValue);
     }
+    focusInput() {
+        this.textbox.focus();
+    }
 };
 __decorate([
     bindable
 ], UxInput.prototype, "autofocus", void 0);
+__decorate([
+    bindable
+], UxInput.prototype, "autocomplete", void 0);
 __decorate([
     bindable
 ], UxInput.prototype, "disabled", void 0);
@@ -154,6 +187,9 @@ __decorate([
 __decorate([
     bindable
 ], UxInput.prototype, "theme", void 0);
+__decorate([
+    bindable
+], UxInput.prototype, "label", void 0);
 __decorate([
     bindable
 ], UxInput.prototype, "type", void 0);

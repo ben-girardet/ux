@@ -4,20 +4,35 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-define(["require", "exports", "aurelia-templating", "aurelia-dependency-injection", "@aurelia-ux/core", "./ux-grid-theme"], function (require, exports, aurelia_templating_1, aurelia_dependency_injection_1, core_1, ux_grid_theme_1) {
+define(["require", "exports", "aurelia-templating", "aurelia-dependency-injection", "@aurelia-ux/core"], function (require, exports, aurelia_templating_1, aurelia_dependency_injection_1, core_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var gridTheme = new ux_grid_theme_1.UxGridTheme();
     var UxGrid = /** @class */ (function () {
         function UxGrid(element, styleEngine) {
             this.element = element;
             this.styleEngine = styleEngine;
-            styleEngine.ensureDefaultTheme(gridTheme);
         }
         UxGrid.prototype.bind = function () {
             this.themeChanged(this.theme);
             if (this.columns != null) {
                 this.columnsChanged(this.columns);
+            }
+            this.processAttributes();
+        };
+        UxGrid.prototype.processAttributes = function () {
+            var alignAttributes = [
+                'align-cells-top',
+                'align-cells-middle',
+                'align-cells-bottom',
+                'fixed',
+                'remove-padding'
+            ];
+            for (var _i = 0, alignAttributes_1 = alignAttributes; _i < alignAttributes_1.length; _i++) {
+                var attribute = alignAttributes_1[_i];
+                if (this.element.hasAttribute(attribute)) {
+                    this.element.removeAttribute(attribute);
+                    this.element.classList.add("ux-grid--" + attribute);
+                }
             }
         };
         UxGrid.prototype.themeChanged = function (newValue) {

@@ -9,8 +9,6 @@ import { DOM } from 'aurelia-pal';
 import { bindingMode } from 'aurelia-binding';
 import { inject } from 'aurelia-dependency-injection';
 import { StyleEngine, normalizeBooleanAttribute } from '@aurelia-ux/core';
-import { UxChipInputTheme } from './ux-chip-input-theme';
-var theme = new UxChipInputTheme();
 var UxChipInput = /** @class */ (function () {
     function UxChipInput(element, styleEngine) {
         this.element = element;
@@ -20,7 +18,6 @@ var UxChipInput = /** @class */ (function () {
         this.separator = ', ';
         this.value = undefined;
         this.chips = new Array();
-        styleEngine.ensureDefaultTheme(theme);
     }
     UxChipInput.prototype.bind = function () {
         this.themeChanged(this.theme);
@@ -49,11 +46,11 @@ var UxChipInput = /** @class */ (function () {
         var _this = this;
         var blurEvent = DOM.createCustomEvent('blur', { bubbles: true });
         this.textbox.addEventListener('focus', function () {
-            _this.element.classList.add('focused');
+            _this.element.classList.add('ux-chip-input--focused');
         });
         this.textbox.addEventListener('blur', function () {
             _this.addChip();
-            _this.element.classList.remove('focused');
+            _this.element.classList.remove('ux-chip-input--focused');
             _this.element.dispatchEvent(blurEvent);
         });
     };
@@ -61,11 +58,11 @@ var UxChipInput = /** @class */ (function () {
         var _this = this;
         var blurEvent = DOM.createCustomEvent('blur', { bubbles: true });
         this.textbox.removeEventListener('focus', function () {
-            _this.element.classList.add('focused');
+            _this.element.classList.add('ux-chip-input--focused');
         });
         this.textbox.removeEventListener('blur', function () {
             _this.addChip();
-            _this.element.classList.remove('focused');
+            _this.element.classList.remove('ux-chip-input--focused');
             _this.element.dispatchEvent(blurEvent);
         });
     };
@@ -162,7 +159,7 @@ var UxChipInput = /** @class */ (function () {
     ], UxChipInput.prototype, "theme", void 0);
     __decorate([
         bindable
-    ], UxChipInput.prototype, "type", void 0);
+    ], UxChipInput.prototype, "label", void 0);
     __decorate([
         bindable
     ], UxChipInput.prototype, "separator", void 0);

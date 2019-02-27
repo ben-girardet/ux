@@ -7,15 +7,12 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { customElement, bindable } from 'aurelia-templating';
 import { inject } from 'aurelia-dependency-injection';
 import { StyleEngine, PaperRipple, normalizeBooleanAttribute } from '@aurelia-ux/core';
-import { UxButtonTheme } from './ux-button-theme';
-const theme = new UxButtonTheme();
 let UxButton = class UxButton {
     constructor(element, styleEngine) {
         this.element = element;
         this.styleEngine = styleEngine;
         this.disabled = false;
         this.ripple = null;
-        styleEngine.ensureDefaultTheme(theme);
     }
     bind() {
         if (normalizeBooleanAttribute('disabled', this.disabled)) {
@@ -27,28 +24,40 @@ let UxButton = class UxButton {
         this.effectChanged(this.effect);
     }
     typeChanged(newValue) {
-        const typeClasses = ['text', 'flat', 'outline', 'raised', 'fab'];
+        const typeClasses = [
+            'ux-button--text',
+            'ux-button--flat',
+            'ux-button--outline',
+            'ux-button--raised',
+            'ux-button--fab'
+        ];
         this.button.classList.remove(...typeClasses);
-        if (newValue == null || typeClasses.includes(newValue) === false) {
+        if (newValue === 'fab') {
+            this.element.classList.add('ux-fab-button');
+        }
+        else {
+            this.element.classList.remove('ux-fab-button');
+        }
+        if (newValue == null || typeClasses.includes(`ux-button--${newValue}`) === false) {
             newValue = 'raised';
         }
-        this.button.classList.add(newValue);
+        this.button.classList.add(`ux-button--${newValue}`);
     }
     sizeChanged(newValue) {
-        const sizeClasses = ['small', 'medium', 'large'];
-        this.button.classList.remove(...sizeClasses);
-        if (newValue == null || sizeClasses.includes(newValue) === false) {
+        const sizeClasses = ['ux-button--small', 'ux-button--medium', 'ux-button--large'];
+        this.element.classList.remove(...sizeClasses);
+        if (newValue == null || sizeClasses.includes(`ux-button--${newValue}`) === false) {
             newValue = 'medium';
         }
-        this.button.classList.add(newValue);
+        this.element.classList.add(`ux-button--${newValue}`);
     }
     effectChanged(newValue) {
-        const effectClasses = ['ripple', 'none'];
+        const effectClasses = ['ux-button--ripple'];
         this.button.classList.remove(...effectClasses);
-        if (newValue == null || effectClasses.includes(newValue) === false) {
+        if (newValue == null || effectClasses.includes(`ux-button--${newValue}`) === false) {
             newValue = 'ripple';
         }
-        this.button.classList.add(newValue);
+        this.button.classList.add(`ux-button--${newValue}`);
     }
     themeChanged(newValue) {
         if (newValue != null && newValue.themeKey == null) {
@@ -65,12 +74,12 @@ let UxButton = class UxButton {
         }
     }
     onMouseDown(e) {
-        if (this.button.classList.contains('ripple')) {
+        if (this.button.classList.contains('ux-button--ripple')) {
             if (this.ripple === null) {
                 this.ripple = new PaperRipple();
                 this.button.appendChild(this.ripple.$);
             }
-            if (this.button.classList.contains('fab')) {
+            if (this.button.classList.contains('ux-button--fab')) {
                 this.ripple.center = true;
                 this.ripple.round = true;
             }
@@ -79,7 +88,7 @@ let UxButton = class UxButton {
         return true;
     }
     onMouseUp() {
-        if (this.button.classList.contains('ripple') && this.ripple !== null) {
+        if (this.button.classList.contains('ux-button--ripple') && this.ripple !== null) {
             this.ripple.upAction();
         }
         return true;

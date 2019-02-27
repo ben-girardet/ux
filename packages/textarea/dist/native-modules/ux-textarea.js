@@ -8,9 +8,7 @@ import { customElement, bindable } from 'aurelia-templating';
 import { DOM } from 'aurelia-pal';
 import { inject } from 'aurelia-dependency-injection';
 import { StyleEngine } from '@aurelia-ux/core';
-import { UxTextAreaTheme } from './ux-textarea-theme';
 import { observable } from 'aurelia-framework';
-var theme = new UxTextAreaTheme();
 var UxTextArea = /** @class */ (function () {
     function UxTextArea(element, styleEngine) {
         this.element = element;
@@ -22,14 +20,10 @@ var UxTextArea = /** @class */ (function () {
         this.readonly = false;
         this.value = undefined;
         Object.setPrototypeOf(element, uxTextAreaElementProto);
-        styleEngine.ensureDefaultTheme(theme);
     }
     UxTextArea.prototype.bind = function () {
         var element = this.element;
         var textbox = this.textbox;
-        if (this.theme != null) {
-            this.themeChanged(this.theme);
-        }
         if (this.autofocus || this.autofocus === '') {
             this.focus = true;
         }
@@ -54,6 +48,7 @@ var UxTextArea = /** @class */ (function () {
         if (this.maxlength) {
             textbox.setAttribute('maxlength', this.maxlength.toString());
         }
+        this.autocompleteChanged(this.autocomplete);
     };
     UxTextArea.prototype.attached = function () {
         var textbox = this.textbox;
@@ -85,6 +80,14 @@ var UxTextArea = /** @class */ (function () {
             this.element.dispatchEvent(DOM.createCustomEvent('change', { bubbles: true }));
         }
     };
+    UxTextArea.prototype.autocompleteChanged = function (newValue) {
+        if (newValue == null) {
+            this.textbox.setAttribute('autocomplete', newValue);
+        }
+        else {
+            this.textbox.removeAttribute('autocomplete');
+        }
+    };
     UxTextArea.prototype.rawValueChanged = function (rawValue) {
         if (this.ignoreRawChanges) {
             return;
@@ -107,6 +110,9 @@ var UxTextArea = /** @class */ (function () {
         focus = focus || focus === '' ? true : false;
         this.element.dispatchEvent(DOM.createCustomEvent(focus ? 'focus' : 'blur', { bubbles: true }));
     };
+    __decorate([
+        bindable
+    ], UxTextArea.prototype, "autocomplete", void 0);
     __decorate([
         bindable
     ], UxTextArea.prototype, "autofocus", void 0);

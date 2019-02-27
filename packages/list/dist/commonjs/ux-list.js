@@ -9,17 +9,23 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var aurelia_templating_1 = require("aurelia-templating");
 var aurelia_dependency_injection_1 = require("aurelia-dependency-injection");
 var core_1 = require("@aurelia-ux/core");
-var ux_list_theme_1 = require("./ux-list-theme");
-var theme = new ux_list_theme_1.UxListTheme();
 var UxList = /** @class */ (function () {
     function UxList(element, styleEngine) {
         this.element = element;
         this.styleEngine = styleEngine;
-        styleEngine.ensureDefaultTheme(theme);
     }
     UxList.prototype.bind = function () {
         if (this.theme != null) {
             this.themeChanged(this.theme);
+        }
+        this.typeChanged(this.type);
+    };
+    UxList.prototype.typeChanged = function (newValue, oldValue) {
+        if (typeof oldValue === 'string') {
+            this.element.classList.remove("ux-list--" + oldValue);
+        }
+        if (typeof newValue === 'string') {
+            this.element.classList.add("ux-list--" + newValue);
         }
     };
     UxList.prototype.themeChanged = function (newValue) {
@@ -31,6 +37,9 @@ var UxList = /** @class */ (function () {
     __decorate([
         aurelia_templating_1.bindable
     ], UxList.prototype, "theme", void 0);
+    __decorate([
+        aurelia_templating_1.bindable
+    ], UxList.prototype, "type", void 0);
     UxList = __decorate([
         aurelia_dependency_injection_1.inject(Element, core_1.StyleEngine),
         aurelia_templating_1.customElement('ux-list')

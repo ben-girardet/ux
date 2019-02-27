@@ -1,4 +1,4 @@
-System.register(["aurelia-templating", "aurelia-pal", "aurelia-dependency-injection", "@aurelia-ux/core", "./ux-textarea-theme", "aurelia-framework"], function (exports_1, context_1) {
+System.register(["aurelia-templating", "aurelia-pal", "aurelia-dependency-injection", "@aurelia-ux/core", "aurelia-framework"], function (exports_1, context_1) {
     "use strict";
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -6,11 +6,11 @@ System.register(["aurelia-templating", "aurelia-pal", "aurelia-dependency-inject
         else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     };
+    var aurelia_templating_1, aurelia_pal_1, aurelia_dependency_injection_1, core_1, aurelia_framework_1, UxTextArea, getVm, uxTextAreaElementProto;
     var __moduleName = context_1 && context_1.id;
     function stopEvent(e) {
         e.stopPropagation();
     }
-    var aurelia_templating_1, aurelia_pal_1, aurelia_dependency_injection_1, core_1, ux_textarea_theme_1, aurelia_framework_1, theme, UxTextArea, getVm, uxTextAreaElementProto;
     return {
         setters: [
             function (aurelia_templating_1_1) {
@@ -25,15 +25,11 @@ System.register(["aurelia-templating", "aurelia-pal", "aurelia-dependency-inject
             function (core_1_1) {
                 core_1 = core_1_1;
             },
-            function (ux_textarea_theme_1_1) {
-                ux_textarea_theme_1 = ux_textarea_theme_1_1;
-            },
             function (aurelia_framework_1_1) {
                 aurelia_framework_1 = aurelia_framework_1_1;
             }
         ],
         execute: function () {
-            theme = new ux_textarea_theme_1.UxTextAreaTheme();
             UxTextArea = /** @class */ (function () {
                 function UxTextArea(element, styleEngine) {
                     this.element = element;
@@ -45,14 +41,10 @@ System.register(["aurelia-templating", "aurelia-pal", "aurelia-dependency-inject
                     this.readonly = false;
                     this.value = undefined;
                     Object.setPrototypeOf(element, uxTextAreaElementProto);
-                    styleEngine.ensureDefaultTheme(theme);
                 }
                 UxTextArea.prototype.bind = function () {
                     var element = this.element;
                     var textbox = this.textbox;
-                    if (this.theme != null) {
-                        this.themeChanged(this.theme);
-                    }
                     if (this.autofocus || this.autofocus === '') {
                         this.focus = true;
                     }
@@ -77,6 +69,7 @@ System.register(["aurelia-templating", "aurelia-pal", "aurelia-dependency-inject
                     if (this.maxlength) {
                         textbox.setAttribute('maxlength', this.maxlength.toString());
                     }
+                    this.autocompleteChanged(this.autocomplete);
                 };
                 UxTextArea.prototype.attached = function () {
                     var textbox = this.textbox;
@@ -108,6 +101,14 @@ System.register(["aurelia-templating", "aurelia-pal", "aurelia-dependency-inject
                         this.element.dispatchEvent(aurelia_pal_1.DOM.createCustomEvent('change', { bubbles: true }));
                     }
                 };
+                UxTextArea.prototype.autocompleteChanged = function (newValue) {
+                    if (newValue == null) {
+                        this.textbox.setAttribute('autocomplete', newValue);
+                    }
+                    else {
+                        this.textbox.removeAttribute('autocomplete');
+                    }
+                };
                 UxTextArea.prototype.rawValueChanged = function (rawValue) {
                     if (this.ignoreRawChanges) {
                         return;
@@ -130,6 +131,9 @@ System.register(["aurelia-templating", "aurelia-pal", "aurelia-dependency-inject
                     focus = focus || focus === '' ? true : false;
                     this.element.dispatchEvent(aurelia_pal_1.DOM.createCustomEvent(focus ? 'focus' : 'blur', { bubbles: true }));
                 };
+                __decorate([
+                    aurelia_templating_1.bindable
+                ], UxTextArea.prototype, "autocomplete", void 0);
                 __decorate([
                     aurelia_templating_1.bindable
                 ], UxTextArea.prototype, "autofocus", void 0);

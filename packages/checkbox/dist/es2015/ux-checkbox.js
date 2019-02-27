@@ -8,9 +8,7 @@ import { customElement, bindable, ElementEvents } from 'aurelia-templating';
 import { computedFrom, observable } from 'aurelia-binding';
 import { inject } from 'aurelia-dependency-injection';
 import { StyleEngine, PaperRipple, normalizeBooleanAttribute, } from '@aurelia-ux/core';
-import { UxCheckboxTheme } from './ux-checkbox-theme';
 import { DOM } from 'aurelia-pal';
-const theme = new UxCheckboxTheme();
 let UxCheckbox = class UxCheckbox {
     constructor(element, styleEngine) {
         this.element = element;
@@ -20,7 +18,6 @@ let UxCheckbox = class UxCheckbox {
         this.effect = 'ripple';
         this.ripple = null;
         Object.setPrototypeOf(element, uxCheckboxElementProto);
-        styleEngine.ensureDefaultTheme(theme);
     }
     get isDisabled() {
         return normalizeBooleanAttribute('disabled', this.disabled);
@@ -46,6 +43,8 @@ let UxCheckbox = class UxCheckbox {
                 element.checked = true;
             }
         }
+        this.valueChanged(this.value);
+        this.disabledChanged(this.checkbox.disabled);
         this.themeChanged(this.theme);
     }
     attached() {
@@ -73,6 +72,33 @@ let UxCheckbox = class UxCheckbox {
     }
     setIndeterminate(value) {
         this.indeterminate = !!value;
+    }
+    checkedChanged(newValue, oldValue) {
+        if (newValue === oldValue) {
+            return;
+        }
+        if (newValue === true) {
+            this.element.classList.add('ux-checkbox--checked');
+        }
+        else {
+            this.element.classList.remove('ux-checkbox--checked');
+        }
+    }
+    disabledChanged(newValue) {
+        if (newValue === true) {
+            this.element.classList.add('ux-checkbox--disabled');
+        }
+        else {
+            this.element.classList.remove('ux-checkbox--disabled');
+        }
+    }
+    focusedChanged(newValue) {
+        if (newValue === true) {
+            this.element.classList.add('ux-checkbox--focused');
+        }
+        else {
+            this.element.classList.remove('ux-checkbox--focused');
+        }
     }
     themeChanged(newValue) {
         if (newValue != null && newValue.themeKey == null) {
@@ -126,7 +152,13 @@ __decorate([
 ], UxCheckbox.prototype, "theme", void 0);
 __decorate([
     observable()
+], UxCheckbox.prototype, "checked", void 0);
+__decorate([
+    observable()
 ], UxCheckbox.prototype, "value", void 0);
+__decorate([
+    observable()
+], UxCheckbox.prototype, "focused", void 0);
 __decorate([
     computedFrom('disabled')
 ], UxCheckbox.prototype, "isDisabled", null);

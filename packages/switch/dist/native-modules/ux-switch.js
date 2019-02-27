@@ -8,9 +8,7 @@ import { customElement, bindable } from 'aurelia-templating';
 import { computedFrom, observable } from 'aurelia-binding';
 import { inject } from 'aurelia-dependency-injection';
 import { StyleEngine, PaperRipple, normalizeBooleanAttribute } from '@aurelia-ux/core';
-import { UxSwitchTheme } from './ux-switch-theme';
 import { DOM, ElementEvents } from 'aurelia-framework';
-var theme = new UxSwitchTheme();
 var UxSwitch = /** @class */ (function () {
     function UxSwitch(element, styleEngine) {
         this.element = element;
@@ -19,7 +17,6 @@ var UxSwitch = /** @class */ (function () {
         this.effect = 'ripple';
         this.ripple = null;
         Object.setPrototypeOf(element, uxSwitchElementProto);
-        styleEngine.ensureDefaultTheme(theme);
     }
     Object.defineProperty(UxSwitch.prototype, "isDisabled", {
         get: function () {
@@ -29,28 +26,27 @@ var UxSwitch = /** @class */ (function () {
         configurable: true
     });
     UxSwitch.prototype.bind = function () {
-        var element = this.element;
-        var checkbox = this.checkbox;
-        if (element.hasAttribute('id')) {
-            var attributeValue = element.getAttribute('id');
+        if (this.element.hasAttribute('id')) {
+            var attributeValue = this.element.getAttribute('id');
             if (attributeValue != null) {
-                checkbox.setAttribute('id', attributeValue);
+                this.checkbox.setAttribute('id', attributeValue);
             }
         }
-        if (element.hasAttribute('tabindex')) {
-            var attributeValue = element.getAttribute('tabindex');
+        if (this.element.hasAttribute('tabindex')) {
+            var attributeValue = this.element.getAttribute('tabindex');
             if (attributeValue != null) {
-                checkbox.setAttribute('tabindex', attributeValue);
+                this.checkbox.setAttribute('tabindex', attributeValue);
             }
         }
-        if (element.hasAttribute('checked')) {
-            var attributeValue = element.getAttribute('checked');
+        if (this.element.hasAttribute('checked')) {
+            var attributeValue = this.element.getAttribute('checked');
             if (attributeValue || attributeValue === '') {
-                element.checked = true;
+                this.element.checked = true;
             }
         }
+        this.valueChanged(this.value);
+        this.disabledChanged(this.checkbox.disabled);
         this.themeChanged(this.theme);
-        this.disabledChanged(this.disabled);
     };
     UxSwitch.prototype.attached = function () {
         this.checkbox.addEventListener('change', stopEvent);
@@ -72,6 +68,25 @@ var UxSwitch = /** @class */ (function () {
             this.element.dispatchEvent(DOM.createCustomEvent('change', { bubbles: true }));
         }
     };
+    UxSwitch.prototype.checkedChanged = function (newValue, oldValue) {
+        if (newValue === oldValue) {
+            return;
+        }
+        if (newValue === true) {
+            this.element.classList.add('ux-switch--checked');
+        }
+        else {
+            this.element.classList.remove('ux-switch--checked');
+        }
+    };
+    UxSwitch.prototype.focusedChanged = function (newValue) {
+        if (newValue === true) {
+            this.element.classList.add('ux-switch--focused');
+        }
+        else {
+            this.element.classList.remove('ux-switch--focused');
+        }
+    };
     UxSwitch.prototype.valueChanged = function (newValue) {
         if (this.ignoreValueChanges) {
             return;
@@ -85,11 +100,11 @@ var UxSwitch = /** @class */ (function () {
         this.styleEngine.applyTheme(newValue, this.element);
     };
     UxSwitch.prototype.disabledChanged = function (newValue) {
-        if (normalizeBooleanAttribute('disabled', newValue) && !this.element.classList.contains('disabled')) {
-            this.checkbox.setAttribute('disabled', '');
+        if (newValue === true) {
+            this.element.classList.add('ux-switch--disabled');
         }
-        else if (this.element.classList.contains('disabled')) {
-            this.checkbox.removeAttribute('disabled');
+        else {
+            this.element.classList.remove('ux-switch--disabled');
         }
     };
     UxSwitch.prototype.onMouseDown = function (e) {
@@ -131,8 +146,14 @@ var UxSwitch = /** @class */ (function () {
         bindable
     ], UxSwitch.prototype, "theme", void 0);
     __decorate([
+        observable()
+    ], UxSwitch.prototype, "checked", void 0);
+    __decorate([
         observable({ initializer: function () { return false; } })
     ], UxSwitch.prototype, "value", void 0);
+    __decorate([
+        observable()
+    ], UxSwitch.prototype, "focused", void 0);
     __decorate([
         computedFrom('disabled')
     ], UxSwitch.prototype, "isDisabled", null);

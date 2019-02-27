@@ -16,6 +16,7 @@ export class UxTextArea implements UxComponent {
   private ignoreRawChanges: boolean;
   private isAttached: boolean;
 
+  @bindable public autocomplete: string;
   @bindable public autofocus: boolean | string | null = null;
   @bindable public autoResize: boolean | string = false;
   @bindable public cols: number;
@@ -42,10 +43,6 @@ export class UxTextArea implements UxComponent {
 
     const element = this.element;
     const textbox = this.textbox;
-
-    if (this.theme != null) {
-      this.themeChanged(this.theme);
-    }
 
     if (this.autofocus || this.autofocus === '') {
       this.focus = true;
@@ -77,6 +74,8 @@ export class UxTextArea implements UxComponent {
     if (this.maxlength) {
       textbox.setAttribute('maxlength', this.maxlength.toString());
     }
+
+    this.autocompleteChanged(this.autocomplete);
   }
 
   public attached() {
@@ -116,6 +115,14 @@ export class UxTextArea implements UxComponent {
     }
   }
 
+  public autocompleteChanged(newValue: any) {
+    if (newValue == null) {
+      this.textbox.setAttribute('autocomplete', newValue);
+    } else {
+      this.textbox.removeAttribute('autocomplete');
+    }
+  }
+
   public rawValueChanged(rawValue: string) {
     if (this.ignoreRawChanges) {
       return;
@@ -148,7 +155,6 @@ function stopEvent(e: Event) {
   e.stopPropagation();
 }
 
-
 const getVm = <T>(_: any) => _.au.controller.viewModel as T;
 const uxTextAreaElementProto = Object.create(HTMLElement.prototype, {
   value: {
@@ -160,4 +166,3 @@ const uxTextAreaElementProto = Object.create(HTMLElement.prototype, {
     }
   }
 });
-

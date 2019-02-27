@@ -11,9 +11,7 @@ var aurelia_binding_1 = require("aurelia-binding");
 var aurelia_dependency_injection_1 = require("aurelia-dependency-injection");
 var core_1 = require("@aurelia-ux/core");
 var datetime_utility_1 = require("./resources/datetime-utility");
-var ux_datepicker_theme_1 = require("./ux-datepicker-theme");
 var moment = require("moment");
-var theme = new ux_datepicker_theme_1.UxDatepickerTheme();
 var UxDatepicker = /** @class */ (function () {
     function UxDatepicker(element, resources, styleEngine) {
         this.element = element;
@@ -30,9 +28,9 @@ var UxDatepicker = /** @class */ (function () {
             time: ['h:m a', 'H:m']
         };
         this.showDialog = false;
-        styleEngine.ensureDefaultTheme(theme);
     }
     UxDatepicker.prototype.bind = function () {
+        this.processAttribute('placeholder');
         if (this.initialDate != null) {
             var dateParse = moment(this.initialDate);
             if (dateParse.isValid()) {
@@ -129,6 +127,13 @@ var UxDatepicker = /** @class */ (function () {
             newValue.themeKey = 'datepicker';
         }
         this.styleEngine.applyTheme(newValue, this.element);
+    };
+    UxDatepicker.prototype.processAttribute = function (attributeName) {
+        var attributeValue = this.element.getAttribute('placeholder');
+        if (attributeValue) {
+            this.element.removeAttribute(attributeName);
+            this.textbox.setAttribute(attributeName, attributeValue);
+        }
     };
     __decorate([
         aurelia_templating_1.bindable

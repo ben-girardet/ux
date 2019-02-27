@@ -1,4 +1,4 @@
-System.register(["aurelia-templating", "aurelia-pal", "aurelia-binding", "aurelia-dependency-injection", "@aurelia-ux/core", "./ux-chip-input-theme"], function (exports_1, context_1) {
+System.register(["aurelia-templating", "aurelia-pal", "aurelia-binding", "aurelia-dependency-injection", "@aurelia-ux/core"], function (exports_1, context_1) {
     "use strict";
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -6,8 +6,8 @@ System.register(["aurelia-templating", "aurelia-pal", "aurelia-binding", "aureli
         else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     };
+    var aurelia_templating_1, aurelia_pal_1, aurelia_binding_1, aurelia_dependency_injection_1, core_1, UxChipInput;
     var __moduleName = context_1 && context_1.id;
-    var aurelia_templating_1, aurelia_pal_1, aurelia_binding_1, aurelia_dependency_injection_1, core_1, ux_chip_input_theme_1, theme, UxChipInput;
     return {
         setters: [
             function (aurelia_templating_1_1) {
@@ -24,13 +24,9 @@ System.register(["aurelia-templating", "aurelia-pal", "aurelia-binding", "aureli
             },
             function (core_1_1) {
                 core_1 = core_1_1;
-            },
-            function (ux_chip_input_theme_1_1) {
-                ux_chip_input_theme_1 = ux_chip_input_theme_1_1;
             }
         ],
         execute: function () {
-            theme = new ux_chip_input_theme_1.UxChipInputTheme();
             UxChipInput = /** @class */ (function () {
                 function UxChipInput(element, styleEngine) {
                     this.element = element;
@@ -40,7 +36,6 @@ System.register(["aurelia-templating", "aurelia-pal", "aurelia-binding", "aureli
                     this.separator = ', ';
                     this.value = undefined;
                     this.chips = new Array();
-                    styleEngine.ensureDefaultTheme(theme);
                 }
                 UxChipInput.prototype.bind = function () {
                     this.themeChanged(this.theme);
@@ -69,11 +64,11 @@ System.register(["aurelia-templating", "aurelia-pal", "aurelia-binding", "aureli
                     var _this = this;
                     var blurEvent = aurelia_pal_1.DOM.createCustomEvent('blur', { bubbles: true });
                     this.textbox.addEventListener('focus', function () {
-                        _this.element.classList.add('focused');
+                        _this.element.classList.add('ux-chip-input--focused');
                     });
                     this.textbox.addEventListener('blur', function () {
                         _this.addChip();
-                        _this.element.classList.remove('focused');
+                        _this.element.classList.remove('ux-chip-input--focused');
                         _this.element.dispatchEvent(blurEvent);
                     });
                 };
@@ -81,11 +76,11 @@ System.register(["aurelia-templating", "aurelia-pal", "aurelia-binding", "aureli
                     var _this = this;
                     var blurEvent = aurelia_pal_1.DOM.createCustomEvent('blur', { bubbles: true });
                     this.textbox.removeEventListener('focus', function () {
-                        _this.element.classList.add('focused');
+                        _this.element.classList.add('ux-chip-input--focused');
                     });
                     this.textbox.removeEventListener('blur', function () {
                         _this.addChip();
-                        _this.element.classList.remove('focused');
+                        _this.element.classList.remove('ux-chip-input--focused');
                         _this.element.dispatchEvent(blurEvent);
                     });
                 };
@@ -182,7 +177,7 @@ System.register(["aurelia-templating", "aurelia-pal", "aurelia-binding", "aureli
                 ], UxChipInput.prototype, "theme", void 0);
                 __decorate([
                     aurelia_templating_1.bindable
-                ], UxChipInput.prototype, "type", void 0);
+                ], UxChipInput.prototype, "label", void 0);
                 __decorate([
                     aurelia_templating_1.bindable
                 ], UxChipInput.prototype, "separator", void 0);

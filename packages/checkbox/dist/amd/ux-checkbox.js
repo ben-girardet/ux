@@ -4,10 +4,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-define(["require", "exports", "aurelia-templating", "aurelia-binding", "aurelia-dependency-injection", "@aurelia-ux/core", "./ux-checkbox-theme", "aurelia-pal"], function (require, exports, aurelia_templating_1, aurelia_binding_1, aurelia_dependency_injection_1, core_1, ux_checkbox_theme_1, aurelia_pal_1) {
+define(["require", "exports", "aurelia-templating", "aurelia-binding", "aurelia-dependency-injection", "@aurelia-ux/core", "aurelia-pal"], function (require, exports, aurelia_templating_1, aurelia_binding_1, aurelia_dependency_injection_1, core_1, aurelia_pal_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var theme = new ux_checkbox_theme_1.UxCheckboxTheme();
     var UxCheckbox = /** @class */ (function () {
         function UxCheckbox(element, styleEngine) {
             this.element = element;
@@ -17,7 +16,6 @@ define(["require", "exports", "aurelia-templating", "aurelia-binding", "aurelia-
             this.effect = 'ripple';
             this.ripple = null;
             Object.setPrototypeOf(element, uxCheckboxElementProto);
-            styleEngine.ensureDefaultTheme(theme);
         }
         Object.defineProperty(UxCheckbox.prototype, "isDisabled", {
             get: function () {
@@ -47,6 +45,8 @@ define(["require", "exports", "aurelia-templating", "aurelia-binding", "aurelia-
                     element.checked = true;
                 }
             }
+            this.valueChanged(this.value);
+            this.disabledChanged(this.checkbox.disabled);
             this.themeChanged(this.theme);
         };
         UxCheckbox.prototype.attached = function () {
@@ -74,6 +74,33 @@ define(["require", "exports", "aurelia-templating", "aurelia-binding", "aurelia-
         };
         UxCheckbox.prototype.setIndeterminate = function (value) {
             this.indeterminate = !!value;
+        };
+        UxCheckbox.prototype.checkedChanged = function (newValue, oldValue) {
+            if (newValue === oldValue) {
+                return;
+            }
+            if (newValue === true) {
+                this.element.classList.add('ux-checkbox--checked');
+            }
+            else {
+                this.element.classList.remove('ux-checkbox--checked');
+            }
+        };
+        UxCheckbox.prototype.disabledChanged = function (newValue) {
+            if (newValue === true) {
+                this.element.classList.add('ux-checkbox--disabled');
+            }
+            else {
+                this.element.classList.remove('ux-checkbox--disabled');
+            }
+        };
+        UxCheckbox.prototype.focusedChanged = function (newValue) {
+            if (newValue === true) {
+                this.element.classList.add('ux-checkbox--focused');
+            }
+            else {
+                this.element.classList.remove('ux-checkbox--focused');
+            }
         };
         UxCheckbox.prototype.themeChanged = function (newValue) {
             if (newValue != null && newValue.themeKey == null) {
@@ -127,7 +154,13 @@ define(["require", "exports", "aurelia-templating", "aurelia-binding", "aurelia-
         ], UxCheckbox.prototype, "theme", void 0);
         __decorate([
             aurelia_binding_1.observable()
+        ], UxCheckbox.prototype, "checked", void 0);
+        __decorate([
+            aurelia_binding_1.observable()
         ], UxCheckbox.prototype, "value", void 0);
+        __decorate([
+            aurelia_binding_1.observable()
+        ], UxCheckbox.prototype, "focused", void 0);
         __decorate([
             aurelia_binding_1.computedFrom('disabled')
         ], UxCheckbox.prototype, "isDisabled", null);

@@ -8,9 +8,7 @@ import { customElement, bindable } from 'aurelia-templating';
 import { computedFrom, observable } from 'aurelia-binding';
 import { inject } from 'aurelia-dependency-injection';
 import { StyleEngine, PaperRipple, normalizeBooleanAttribute } from '@aurelia-ux/core';
-import { UxSwitchTheme } from './ux-switch-theme';
 import { DOM, ElementEvents } from 'aurelia-framework';
-const theme = new UxSwitchTheme();
 let UxSwitch = class UxSwitch {
     constructor(element, styleEngine) {
         this.element = element;
@@ -19,34 +17,32 @@ let UxSwitch = class UxSwitch {
         this.effect = 'ripple';
         this.ripple = null;
         Object.setPrototypeOf(element, uxSwitchElementProto);
-        styleEngine.ensureDefaultTheme(theme);
     }
     get isDisabled() {
         return normalizeBooleanAttribute('disabled', this.disabled);
     }
     bind() {
-        const element = this.element;
-        const checkbox = this.checkbox;
-        if (element.hasAttribute('id')) {
-            const attributeValue = element.getAttribute('id');
+        if (this.element.hasAttribute('id')) {
+            const attributeValue = this.element.getAttribute('id');
             if (attributeValue != null) {
-                checkbox.setAttribute('id', attributeValue);
+                this.checkbox.setAttribute('id', attributeValue);
             }
         }
-        if (element.hasAttribute('tabindex')) {
-            const attributeValue = element.getAttribute('tabindex');
+        if (this.element.hasAttribute('tabindex')) {
+            const attributeValue = this.element.getAttribute('tabindex');
             if (attributeValue != null) {
-                checkbox.setAttribute('tabindex', attributeValue);
+                this.checkbox.setAttribute('tabindex', attributeValue);
             }
         }
-        if (element.hasAttribute('checked')) {
-            const attributeValue = element.getAttribute('checked');
+        if (this.element.hasAttribute('checked')) {
+            const attributeValue = this.element.getAttribute('checked');
             if (attributeValue || attributeValue === '') {
-                element.checked = true;
+                this.element.checked = true;
             }
         }
+        this.valueChanged(this.value);
+        this.disabledChanged(this.checkbox.disabled);
         this.themeChanged(this.theme);
-        this.disabledChanged(this.disabled);
     }
     attached() {
         this.checkbox.addEventListener('change', stopEvent);
@@ -68,6 +64,25 @@ let UxSwitch = class UxSwitch {
             this.element.dispatchEvent(DOM.createCustomEvent('change', { bubbles: true }));
         }
     }
+    checkedChanged(newValue, oldValue) {
+        if (newValue === oldValue) {
+            return;
+        }
+        if (newValue === true) {
+            this.element.classList.add('ux-switch--checked');
+        }
+        else {
+            this.element.classList.remove('ux-switch--checked');
+        }
+    }
+    focusedChanged(newValue) {
+        if (newValue === true) {
+            this.element.classList.add('ux-switch--focused');
+        }
+        else {
+            this.element.classList.remove('ux-switch--focused');
+        }
+    }
     valueChanged(newValue) {
         if (this.ignoreValueChanges) {
             return;
@@ -81,11 +96,11 @@ let UxSwitch = class UxSwitch {
         this.styleEngine.applyTheme(newValue, this.element);
     }
     disabledChanged(newValue) {
-        if (normalizeBooleanAttribute('disabled', newValue) && !this.element.classList.contains('disabled')) {
-            this.checkbox.setAttribute('disabled', '');
+        if (newValue === true) {
+            this.element.classList.add('ux-switch--disabled');
         }
-        else if (this.element.classList.contains('disabled')) {
-            this.checkbox.removeAttribute('disabled');
+        else {
+            this.element.classList.remove('ux-switch--disabled');
         }
     }
     onMouseDown(e) {
@@ -127,8 +142,14 @@ __decorate([
     bindable
 ], UxSwitch.prototype, "theme", void 0);
 __decorate([
+    observable()
+], UxSwitch.prototype, "checked", void 0);
+__decorate([
     observable({ initializer: () => false })
 ], UxSwitch.prototype, "value", void 0);
+__decorate([
+    observable()
+], UxSwitch.prototype, "focused", void 0);
 __decorate([
     computedFrom('disabled')
 ], UxSwitch.prototype, "isDisabled", null);

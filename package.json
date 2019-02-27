@@ -47,8 +47,7 @@
     "prepare-release": "cross-env npm run changelog && npm run build && npm run doc"
   },
   "dependencies": {
-    "@aurelia-ux/core": "^0.8.1",
-    "aurelia-binding": "^1.7.1 || ^2.0.0",
+    "aurelia-binding": "^2.0.0",
     "aurelia-framework": "^1.0.0",
     "aurelia-templating-resources": "^1.6.0"
   },
@@ -78,17 +77,17 @@
     "karma-mocha-reporter": "^2.2.5",
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webpack": "^2.0.13",
-    "lerna": "^2.5.1",
+    "lerna": "^3.4.3",
     "path": "^0.12.7",
     "requirejs": "^2.3.3",
     "requirejs-text": "^2.0.15",
     "rimraf": "^2.6.1",
     "ts-loader": "^4.0.1",
     "ts-node": "^5.0.1",
-    "tsconfig-paths": "^3.1.1",
-    "tslint": "^4.4.2",
+    "tsconfig-paths": "^3.6.0",
+    "tslint": "^5.11.0",
     "typedoc": "^0.9.0",
-    "typescript": "^2.2.1",
+    "typescript": "^3.1.6",
     "webpack": "^4.0.1"
   }
 }
